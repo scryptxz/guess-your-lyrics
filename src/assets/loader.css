@@ -3,8 +3,7 @@
   --uib-color: black;
   --uib-speed: 1s;
   --uib-bg-opacity: 0.1;
-  height: 31.25px;
-  width: 40px;
+  scale: 0.6;
   transform-origin: center;
   overflow: visible;
   margin: 0 auto;

@@ -39,8 +39,8 @@ export class AppComponent {
         "https://accounts.spotify.com/api/token",
         qs.stringify({
           grant_type: "client_credentials",
-          client_id: "e89c58aca13d4e72bc7dc02521952367",
-          client_secret: "2af4f0ee57934ebda2bbad747027c7b4",
+          client_id: "CI",
+          client_secret: "CS",
         })
       )
       .then((res) => {
@@ -49,7 +49,7 @@ export class AppComponent {
           .get(
             `https://api.spotify.com/v1/playlists/${this.spotifyPlaylist.slice(
               34
-            )}`,
+            )}/tracks?offset=200&limit=200`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -66,6 +66,7 @@ export class AppComponent {
               json: res.data,
             });
             const randomIndex = Math.floor(Math.random() * 100);
+            console.log(jsonTrackName);
             console.log(randomIndex);
             this.trackName = jsonTrackName[randomIndex];
             this.artistName = jsonArtistName[randomIndex];
@@ -76,7 +77,7 @@ export class AppComponent {
                 `/api/ws/1.1/track.search?q=${this.trackName} ${this.artistName}`,
                 {
                   params: {
-                    apikey: "2eed47a883d004ec2ba352100a6b057e",
+                    apikey: "AK",
                   },
                 }
               )
@@ -92,7 +93,7 @@ export class AppComponent {
                   .get("/api/ws/1.1/track.lyrics.get", {
                     params: {
                       track_id: this.trackId,
-                      apikey: "2eed47a883d004ec2ba352100a6b057e",
+                      apikey: "AK",
                     },
                   })
                   .then((res) => {

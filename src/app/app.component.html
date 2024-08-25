@@ -1,16 +1,16 @@
 <main
-  class="flex justify-center items-center min-h-screen w-full bg-neutral-950 py-12"
+  class="flex justify-center items-center min-h-screen w-full bg-neutral-950"
 >
   <div
-    class="flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 size-[580px] shadow-2xl"
+    class="flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 size-[85vh] shadow-2xl"
   >
     <input
       type="text"
       [(ngModel)]="spotifyPlaylist"
       placeholder="Your spotify playlist (URL)"
-      class="rounded-xl border border-neutral-700 text-neutral-400 text-xl bg-transparent w-full py-2 px-4 placeholder:text-neutral-600"
+      class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent w-full py-2 px-4 placeholder:text-neutral-600"
     />
-    <button class="bg-green-700 py-1 px-5 rounded-full" (click)="getLyrics()">
+    <button class="bg-green-700 px-5 rounded-full h-9" (click)="getLyrics()">
       <svg
         class="container"
         x="0px"
@@ -48,7 +48,7 @@
       }
     </div>
     <span
-      class="text-orange-500 font-bold my-2 mx-auto cursor-pointer"
+      class="text-green-400 my-2 mx-auto cursor-pointer"
       (click)="revealTrack()"
       [ngClass]="{ 'blur-lg': !reveal }"
       >{{ trackName }} - {{ artistName }}
