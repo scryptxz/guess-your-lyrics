@@ -21,7 +21,7 @@ type SearchType = {
   standalone: true,
   imports: [CommonModule, RouterOutlet, FormsModule],
   templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.css"],
+  styleUrls: ["./app.component.css", "../assets/loader.css"],
 })
 export class AppComponent {
   lyrics!: string[];
@@ -29,15 +29,18 @@ export class AppComponent {
   spotifyPlaylist!: string;
   trackName!: string;
   artistName!: string;
+  isLoading: boolean = false;
+  reveal: boolean = false;
 
   getLyrics() {
+    this.isLoading = true;
     axios
       .post(
         "https://accounts.spotify.com/api/token",
         qs.stringify({
           grant_type: "client_credentials",
-          client_id: "CLIENT_ID",
-          client_secret: "CLIENT_SECRET",
+          client_id: "e89c58aca13d4e72bc7dc02521952367",
+          client_secret: "2af4f0ee57934ebda2bbad747027c7b4",
         })
       )
       .then((res) => {
@@ -73,7 +76,7 @@ export class AppComponent {
                 `/api/ws/1.1/track.search?q=${this.trackName} ${this.artistName}`,
                 {
                   params: {
-                    apikey: "API_KEY",
+                    apikey: "2eed47a883d004ec2ba352100a6b057e",
                   },
                 }
               )
@@ -89,10 +92,11 @@ export class AppComponent {
                   .get("/api/ws/1.1/track.lyrics.get", {
                     params: {
                       track_id: this.trackId,
-                      apikey: "API_KEY",
+                      apikey: "2eed47a883d004ec2ba352100a6b057e",
                     },
                   })
                   .then((res) => {
+                    this.isLoading = false;
                     console.log(res);
                     try {
                       const r = new RegExp(this.trackName, "gi");
@@ -108,5 +112,9 @@ export class AppComponent {
               });
           });
       });
+  }
+
+  revealTrack() {
+    this.reveal = !this.reveal;
   }
 }
