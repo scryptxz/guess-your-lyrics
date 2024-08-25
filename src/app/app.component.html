@@ -1,17 +1,28 @@
-<main class="flex justify-center items-center min-h-screen w-full bg-gray-950">
+<main
+  class="flex justify-center items-center min-h-screen w-full bg-neutral-950 py-12"
+>
   <div class="flex flex-col gap-4">
     <div class="flex">
       <input
         type="text"
-        [(ngModel)]="trackSearch"
-        class="border-b border-white border-opacity-50 text-gray-400 font-bold text-4xl bg-transparent"
+        [(ngModel)]="spotifyPlaylist"
+        class="border-b border-white border-opacity-50 text-green-900 text-xl bg-transparent w-[30rem]"
       />
       <button class="bg-white text-2xl py-4 px-8" (click)="getLyrics()">
         Go
       </button>
     </div>
     @for (item of lyrics; track $index) {
-    <p class="text-2xl text-gray-400 font-bold">{{ item }}</p>
+    <p
+      class="text-2xl text-green-600 font-bold select-none pointer-events-none"
+    >
+      {{ item }}
+    </p>
     }
+    <div class="p-2 border m-5 text-center group">
+      <span class="text-orange-500 font-bold invisible group-hover:!visible"
+        >{{ trackName }} - {{ artistName }}</span
+      >
+    </div>
   </div>
 </main>

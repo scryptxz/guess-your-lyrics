@@ -24,26 +24,29 @@ type SearchType = {
   styleUrls: ["./app.component.css"],
 })
 export class AppComponent {
-  lyrics!: string[] | string;
+  lyrics!: string[];
   trackId!: number;
-  trackSearch!: string;
+  spotifyPlaylist!: string;
   trackName!: string;
+  artistName!: string;
 
-  ngOnInit(): void {
+  getLyrics() {
     axios
       .post(
         "https://accounts.spotify.com/api/token",
         qs.stringify({
           grant_type: "client_credentials",
-          client_id: "e89c58aca13d4e72bc7dc02521952367",
-          client_secret: "2af4f0ee57934ebda2bbad747027c7b4",
+          client_id: "CLIENT_ID",
+          client_secret: "CLIENT_SECRET",
         })
       )
       .then((res) => {
         const token = res.data.access_token;
         axios
           .get(
-            "https://api.spotify.com/v1/playlists/5MVD62fLi3lBrgpHsxtRPE?si=4a95bcd04f7f4eae",
+            `https://api.spotify.com/v1/playlists/${this.spotifyPlaylist.slice(
+              34
+            )}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -60,44 +63,49 @@ export class AppComponent {
               json: res.data,
             });
             const randomIndex = Math.floor(Math.random() * 100);
-            this.trackName =
-              jsonTrackName[randomIndex] + " " + jsonArtistName[randomIndex];
-          });
-      });
-  }
-
-  getLyrics() {
-    axios
-      .get(`/api/ws/1.1/track.search?q=${this.trackName}`, {
-        params: {
-          apikey: "2eed47a883d004ec2ba352100a6b057e",
-        },
-      })
-      .then((res: any) => {
-        this.trackId = res.data.message.body.track_list[0].track.track_id;
-        const result = JSONPath({
-          path: "$.message.body.track_list[*].track.track_name",
-          json: res.data,
-        });
-        console.log(result);
-        // console.log(res);
-        axios
-          .get("/api/ws/1.1/track.lyrics.get", {
-            params: {
-              track_id: this.trackId,
-              apikey: "2eed47a883d004ec2ba352100a6b057e",
-            },
+            console.log(randomIndex);
+            this.trackName = jsonTrackName[randomIndex];
+            this.artistName = jsonArtistName[randomIndex];
           })
-          .then((res) => {
-            console.log(res);
-            try {
-              const data = res.data.message.body.lyrics.lyrics_body
-                .split("\n")
-                .filter((e: string) => e != "");
-              this.lyrics = data.slice(0, data.length - 4);
-            } catch (error) {
-              this.lyrics = "Lyrics not found";
-            }
+          .then(() => {
+            axios
+              .get(
+                `/api/ws/1.1/track.search?q=${this.trackName} ${this.artistName}`,
+                {
+                  params: {
+                    apikey: "API_KEY",
+                  },
+                }
+              )
+              .then((res: any) => {
+                const result = JSONPath({
+                  path: `$.message.body.track_list[?(@.track.artist_name == "${this.artistName}" && @.track.track_name.match(/${this.trackName}/gi))].track.track_id`,
+                  json: res.data,
+                });
+                console.log(result);
+                console.log(res);
+                this.trackId = result[0];
+                axios
+                  .get("/api/ws/1.1/track.lyrics.get", {
+                    params: {
+                      track_id: this.trackId,
+                      apikey: "API_KEY",
+                    },
+                  })
+                  .then((res) => {
+                    console.log(res);
+                    try {
+                      const r = new RegExp(this.trackName, "gi");
+                      const data = res.data.message.body.lyrics.lyrics_body
+                        .replace(r, "████████")
+                        .split("\n")
+                        .filter((e: string) => e != "");
+                      this.lyrics = data.slice(0, data.length - 4);
+                    } catch (error) {
+                      this.lyrics = ["Lyrics not found"];
+                    }
+                  });
+              });
           });
       });
   }
