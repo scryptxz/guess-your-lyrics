@@ -1,8 +1,8 @@
 <main
-  class="flex justify-center items-center min-h-screen w-full bg-neutral-950"
+  class="flex flex-wrap gap-8 justify-center items-center min-h-[100svh] w-full bg-neutral-950"
 >
   <div
-    class="relative flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 size-[85vh] shadow-2xl"
+    class="relative flex flex-col gap-4 border-neutral-700 rounded-xl p-5 size-[85vh] shadow-2xl sm:border"
   >
     <input
       type="text"
@@ -11,8 +11,9 @@
       class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent w-full py-2 px-4 placeholder:text-neutral-600"
     />
     <button
-      *ngIf="!isLoading"
       class="bg-green-700 px-5 rounded-full h-9"
+      [ngClass]="{ 'bg-green-900 cursor-not-allowed': isLoading }"
+      [disabled]="isLoading"
       (click)="getLyrics()"
     >
       <span>Play</span>
@@ -42,25 +43,38 @@
     </span> -->
   </div>
   <div
-    class="flex flex-col gap-4 border border-neutral-700 rounded p-5 size-[60vh] shadow-2xl ml-12 overflow-y-auto lyrics-scroll"
+    class="flex flex-col border-neutral-700 rounded-xl size-[60vh] shadow-2xl overflow-hidden sm:border"
     *ngIf="showGuessingTracks"
   >
-    @for (item of trackData; track $index) {
-    <div
-      class="border border-neutral-700 rounded p-3 flex gap-5 items-center hover:bg-neutral-900 cursor-pointer"
-      (click)="checkGuess(item)"
-      [ngClass]="{
-        '!bg-green-600 border-black animate__animated animate__flash !bg-opacity-10':
-          item.name === chosenTrack && item.artist === chosenArtist && guessed,
-        'opacity-20': guessed
-      }"
-    >
-      <img [src]="item.image" width="55" class="rounded-xl" />
-      <div>
-        <h1 class="font-bold text-green-500">{{ item.name }}</h1>
-        <p class="font text-neutral-400">{{ item.artist }}</p>
-      </div>
+    <div class="bg-neutral-950 px-5 py-4">
+      <input
+        type="text"
+        placeholder="Search track"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="searchTrack()"
+        class="w-full bg-transparent border-b border-green-700 px-4 pb-2 text-neutral-400 placeholder:text-neutral-600"
+      />
     </div>
-    }
+    <div class="flex flex-col gap-4 pb-6 overflow-y-auto lyrics-scroll">
+      @for (item of searchResults; track $index) {
+      <div
+        class="border border-neutral-700 rounded-xl px-3 py-2 mx-5 flex gap-5 items-center hover:bg-neutral-900 cursor-pointer"
+        (click)="checkGuess(item)"
+        [ngClass]="{
+          '!bg-green-600 !border-green-950 animate__animated animate__flash !bg-opacity-10':
+            item.name === chosenTrack &&
+            item.artist === chosenArtist &&
+            guessed,
+          'opacity-20': guessed
+        }"
+      >
+        <img [src]="item.image" width="55" class="rounded-xl" />
+        <div>
+          <h1 class="font-bold text-green-500">{{ item.name }}</h1>
+          <p class="font text-neutral-400">{{ item.artist }}</p>
+        </div>
+      </div>
+      }
+    </div>
   </div>
 </main>

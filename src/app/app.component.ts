@@ -40,12 +40,14 @@ export class AppComponent {
   chosenArtist!: string;
   isLoading: boolean = false;
   reveal: boolean = false;
-  nextURL!: string;
+  nextURL!: string | null;
   allTracks: string[] = [];
   allArtists: string[] = [];
   trackData: TrackDataTypes[] = [];
   showGuessingTracks: boolean = false;
   guessed!: boolean;
+  searchQuery: string = "";
+  searchResults!: TrackDataTypes[];
 
   async getLyrics() {
     this.isLoading = true;
@@ -56,6 +58,7 @@ export class AppComponent {
     this.trackData = [];
     this.showGuessingTracks = false;
     this.guessed = false;
+    this.searchQuery = "";
 
     try {
       const formattedPlaylistURL =
@@ -82,15 +85,17 @@ export class AppComponent {
                 },
               })
               .then((data) => {
-                data.data.items.forEach(
-                  (element: SpotifyTrackData, index: number) => {
+                data.data.items.forEach((element: SpotifyTrackData) => {
+                  try {
                     this.trackData.push({
                       name: element.track.name,
                       artist: element.track.artists[0].name,
                       image: element.track.album.images[0].url,
                     });
+                  } catch (error) {
+                    console.log(element);
                   }
-                );
+                });
                 const jsonTrackName = JSONPath({
                   path: "$.items[*].track.name",
                   json: data.data,
@@ -109,7 +114,7 @@ export class AppComponent {
           this.chosenArtist = this.allArtists[randomIndex];
           await axios
             .get(
-              `https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
+              `/api/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
               {
                 params: {
                   apikey: "2eed47a883d004ec2ba352100a6b057e",
@@ -123,16 +128,14 @@ export class AppComponent {
               });
               this.trackId = result[0];
               await axios
-                .get(
-                  "https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/track.lyrics.get",
-                  {
-                    params: {
-                      track_id: this.trackId,
-                      apikey: "2eed47a883d004ec2ba352100a6b057e",
-                    },
-                  }
-                )
+                .get("/api/ws/1.1/track.lyrics.get", {
+                  params: {
+                    track_id: this.trackId,
+                    apikey: "2eed47a883d004ec2ba352100a6b057e",
+                  },
+                })
                 .then((res) => {
+                  console.log(res);
                   this.isLoading = false;
                   try {
                     const r = new RegExp(this.chosenTrack, "gi");
@@ -141,14 +144,18 @@ export class AppComponent {
                       .split("\n")
                       .filter((e: string) => e != "");
                     this.lyrics = data.slice(0, data.length - 4);
+                    this.searchResults = this.trackData;
                     this.showGuessingTracks = true;
                   } catch (error) {
-                    this.getLyrics();
+                    // this.getLyrics();
+                    console.log(error);
+                    this.isLoading = false;
                   }
                 });
             });
         });
     } catch (error) {
+      console.log(error);
       alert("Invalid or private playlist");
       this.isLoading = false;
     }
@@ -162,5 +169,17 @@ export class AppComponent {
     if (track.name === this.chosenTrack && track.artist === this.chosenArtist) {
       this.guessed = true;
     }
+  }
+
+  searchTrack() {
+    this.searchResults = this.trackData.filter(
+      (e: TrackDataTypes) =>
+        e.name
+          .toLocaleLowerCase()
+          .includes(this.searchQuery.toLocaleLowerCase()) ||
+        e.artist
+          .toLocaleLowerCase()
+          .includes(this.searchQuery.toLocaleLowerCase())
+    );
   }
 }
