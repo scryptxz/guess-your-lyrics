@@ -109,7 +109,7 @@ export class AppComponent {
           this.chosenArtist = this.allArtists[randomIndex];
           await axios
             .get(
-              `/api/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
+              `https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
               {
                 params: {
                   apikey: "2eed47a883d004ec2ba352100a6b057e",
@@ -123,12 +123,15 @@ export class AppComponent {
               });
               this.trackId = result[0];
               await axios
-                .get("/api/ws/1.1/track.lyrics.get", {
-                  params: {
-                    track_id: this.trackId,
-                    apikey: "2eed47a883d004ec2ba352100a6b057e",
-                  },
-                })
+                .get(
+                  "https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/track.lyrics.get",
+                  {
+                    params: {
+                      track_id: this.trackId,
+                      apikey: "2eed47a883d004ec2ba352100a6b057e",
+                    },
+                  }
+                )
                 .then((res) => {
                   this.isLoading = false;
                   try {
