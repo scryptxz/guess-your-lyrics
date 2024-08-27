@@ -49,6 +49,13 @@ export class AppComponent {
 
   async getLyrics() {
     this.isLoading = true;
+    this.lyrics = [];
+    this.reveal = false;
+    this.allTracks = [];
+    this.allArtists = [];
+    this.trackData = [];
+    this.showGuessingTracks = false;
+    this.guessed = false;
 
     try {
       const formattedPlaylistURL =
@@ -61,8 +68,8 @@ export class AppComponent {
           "https://accounts.spotify.com/api/token",
           qs.stringify({
             grant_type: "client_credentials",
-            client_id: "e89c58aca13d4e72bc7dc02521952367",
-            client_secret: "528d500183f943a6909159a487a89d33",
+            client_id: "54e1c1ed18694a4783e400e6647c8109",
+            client_secret: "d88c4932b8cb456e976aeaedb74f4a42",
           })
         )
         .then(async (res) => {
@@ -102,7 +109,7 @@ export class AppComponent {
           this.chosenArtist = this.allArtists[randomIndex];
           await axios
             .get(
-              `https://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
+              `/api/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
               {
                 params: {
                   apikey: "2eed47a883d004ec2ba352100a6b057e",
@@ -116,7 +123,7 @@ export class AppComponent {
               });
               this.trackId = result[0];
               await axios
-                .get("https://api.musixmatch.com/ws/1.1/track.lyrics.get", {
+                .get("/api/ws/1.1/track.lyrics.get", {
                   params: {
                     track_id: this.trackId,
                     apikey: "2eed47a883d004ec2ba352100a6b057e",
