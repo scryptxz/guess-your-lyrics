@@ -1,54 +1,70 @@
 .container {
-  --uib-size: 45px;
-  --uib-color: black;
-  --uib-speed: 1s;
-  --uib-bg-opacity: 0.1;
-  scale: 0.6;
-  transform-origin: center;
-  overflow: visible;
-  margin: 0 auto;
+  --uib-size: 40px;
+  --uib-color: #15803d;
+  --uib-speed: 1.3s;
+  --uib-dot-size: 25%;
+  position: relative;
+  display: inline-block;
+  height: var(--uib-size);
+  width: var(--uib-size);
+  animation: spin var(--uib-speed) infinite linear;
 }
 
-.car {
-  stroke: var(--uib-color);
-  stroke-dasharray: 100;
-  stroke-dashoffset: 0;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  animation: travel var(--uib-speed) ease-in-out infinite,
-    fade var(--uib-speed) ease-out infinite;
-  will-change: stroke-dasharray, stroke-dashoffset;
-  transition: stroke 0.5s ease;
+.dot {
+  position: absolute;
+  left: calc(50% - var(--uib-dot-size) / 2);
+  height: 100%;
+  width: var(--uib-dot-size);
 }
 
-.track {
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke: var(--uib-color);
-  opacity: var(--uib-bg-opacity);
+.dot:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0%;
+  width: 100%;
+  padding-bottom: 100%;
+  background-color: var(--uib-color);
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
 }
 
-@keyframes travel {
+.dot:nth-child(1) {
+  transform: rotate(120deg);
+}
+
+.dot:nth-child(1)::after {
+  animation: wobble var(--uib-speed) infinite ease-in-out;
+}
+
+.dot:nth-child(2) {
+  transform: rotate(-120deg);
+}
+
+.dot:nth-child(2)::after {
+  animation: wobble var(--uib-speed) infinite ease-in-out;
+}
+
+.dot:nth-child(3)::after {
+  animation: wobble var(--uib-speed) infinite ease-in-out;
+}
+
+@keyframes spin {
   0% {
-    stroke-dashoffset: 100;
+    transform: rotate(0deg);
   }
-
-  75% {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes fade {
-  0% {
-    opacity: 0;
-  }
-
-  20%,
-  55% {
-    opacity: 1;
-  }
-
   100% {
-    opacity: 0;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wobble {
+  0%,
+  100% {
+    transform: translateY(0%);
+  }
+  50% {
+    transform: translateY(65%);
   }
 }

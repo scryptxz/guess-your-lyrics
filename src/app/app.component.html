@@ -2,7 +2,7 @@
   class="flex justify-center items-center min-h-screen w-full bg-neutral-950"
 >
   <div
-    class="flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 size-[85vh] shadow-2xl"
+    class="relative flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 size-[85vh] shadow-2xl"
   >
     <input
       type="text"
@@ -10,34 +10,21 @@
       placeholder="Your spotify playlist (URL)"
       class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent w-full py-2 px-4 placeholder:text-neutral-600"
     />
-    <button class="bg-green-700 px-5 rounded-full h-9" (click)="getLyrics()">
-      <svg
-        class="container"
-        x="0px"
-        y="0px"
-        viewBox="0 0 50 31.25"
-        height="31.25"
-        width="50"
-        preserveAspectRatio="xMidYMid meet"
-        *ngIf="isLoading"
-      >
-        <path
-          class="track"
-          stroke-width="4"
-          fill="none"
-          pathlength="100"
-          d="M0.625 21.5 h10.25 l3.75 -5.875 l7.375 15 l9.75 -30 l7.375 20.875 v0 h10.25"
-        />
-        <path
-          class="car"
-          stroke-width="4"
-          fill="none"
-          pathlength="100"
-          d="M0.625 21.5 h10.25 l3.75 -5.875 l7.375 15 l9.75 -30 l7.375 20.875 v0 h10.25"
-        />
-      </svg>
-      <span *ngIf="!isLoading">Play</span>
+    <button
+      *ngIf="!isLoading"
+      class="bg-green-700 px-5 rounded-full h-9"
+      (click)="getLyrics()"
+    >
+      <span>Play</span>
     </button>
+    <div class="flex flex-col items-center my-auto" *ngIf="isLoading">
+      <div class="container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <p class="text-green-700">Just a sec...</p>
+    </div>
     <div class="flex flex-col gap-4 overflow-y-auto lyrics-scroll">
       @for (item of lyrics; track $index) {
       <p
@@ -47,11 +34,33 @@
       </p>
       }
     </div>
-    <span
+    <!-- <span
       class="text-green-400 my-2 mx-auto cursor-pointer"
       (click)="revealTrack()"
-      [ngClass]="{ 'blur-lg': !reveal }"
-      >{{ trackName }} - {{ artistName }}
-    </span>
+      [ngClass]="{ 'blur-xl': !reveal }"
+      >{{ chosenTrack }} - {{ chosenArtist }}
+    </span> -->
+  </div>
+  <div
+    class="flex flex-col gap-4 border border-neutral-700 rounded p-5 size-[60vh] shadow-2xl ml-12 overflow-y-auto lyrics-scroll"
+    *ngIf="showGuessingTracks"
+  >
+    @for (item of trackData; track $index) {
+    <div
+      class="border border-neutral-700 rounded p-3 flex gap-5 items-center hover:bg-neutral-900 cursor-pointer"
+      (click)="checkGuess(item)"
+      [ngClass]="{
+        '!bg-green-600 border-black animate__animated animate__flash !bg-opacity-10':
+          item.name === chosenTrack && item.artist === chosenArtist && guessed,
+        'opacity-20': guessed
+      }"
+    >
+      <img [src]="item.image" width="55" class="rounded-xl" />
+      <div>
+        <h1 class="font-bold text-green-500">{{ item.name }}</h1>
+        <p class="font text-neutral-400">{{ item.artist }}</p>
+      </div>
+    </div>
+    }
   </div>
 </main>
