@@ -47,6 +47,7 @@ export class AppComponent {
   isLoading: boolean = false;
   reveal: boolean = false;
   showGuessingTracks: boolean = false;
+  blankInput: boolean = false;
 
   // Numbers
   trackId!: number;
@@ -72,7 +73,13 @@ export class AppComponent {
     this.rightGuess = false;
     this.searchQuery = "";
     this.guessedIndex = -1;
+    this.blankInput = false;
 
+    if (!this.spotifyPlaylist) {
+      this.isLoading = false;
+      this.blankInput = true;
+      return;
+    }
     try {
       const formattedPlaylistURL =
         this.spotifyPlaylist.match(/(?<=playlist\/)[^?]+/);
@@ -108,7 +115,7 @@ export class AppComponent {
                       image: element.track.album.images[0].url,
                     });
                   } catch (error) {
-                    console.log(element);
+                    console.log(error);
                   }
                 });
                 const jsonTrackName = JSONPath({
@@ -153,7 +160,6 @@ export class AppComponent {
                   }
                 )
                 .then((res) => {
-                  console.log(res);
                   this.isLoading = false;
                   try {
                     const r = new RegExp(this.chosenTrack, "gi");
@@ -166,13 +172,11 @@ export class AppComponent {
                     this.showGuessingTracks = true;
                   } catch (error) {
                     this.getLyrics();
-                    console.log(error);
                   }
                 });
             });
         });
     } catch (error) {
-      console.log(error);
       alert("Invalid or private playlist");
       this.isLoading = false;
     }
@@ -189,8 +193,6 @@ export class AppComponent {
         this.rightGuess = true;
       }
       this.guessedIndex = guessedIndex;
-      console.log(guessedIndex);
-      console.log(this.chosenIndex);
     }
   }
 
@@ -204,5 +206,12 @@ export class AppComponent {
           .toLocaleLowerCase()
           .includes(this.searchQuery.toLocaleLowerCase())
     );
+  }
+
+  showAnswer() {
+    this.searchResults = this.trackData.filter(
+      (e: TrackDataTypes) => e.id === this.chosenIndex
+    );
+    this.rightGuess = true;
   }
 }
