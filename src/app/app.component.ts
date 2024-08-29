@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterOutlet } from "@angular/router";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { FormsModule } from "@angular/forms";
 import { JSONPath } from "jsonpath-plus";
 import qs from "qs";
@@ -55,13 +55,14 @@ export class AppComponent {
   guessedIndex!: number;
 
   // Strings
-  spotifyPlaylist!: string;
   chosenTrack!: string;
   chosenArtist!: string;
   nextURL!: string | null;
   searchQuery: string = "";
+  spotifyPlaylist: string = "";
 
   async getLyrics() {
+    // Reset states when the user submit the form
     this.lyrics = [];
     this.allTracks = [];
     this.allArtists = [];
@@ -75,17 +76,22 @@ export class AppComponent {
     this.guessedIndex = -1;
     this.blankInput = false;
 
-    if (!this.spotifyPlaylist) {
+    // Check if the playlist input is empty
+    if (this.spotifyPlaylist === "") {
       this.isLoading = false;
       this.blankInput = true;
       return;
     }
+
     try {
+      // Format the playlist input value to only retrieve the playlist ID
       const formattedPlaylistURL =
         this.spotifyPlaylist.match(/(?<=playlist\/)[^?]+/);
       if (formattedPlaylistURL) {
         this.nextURL = `https://api.spotify.com/v1/playlists/${formattedPlaylistURL[0]}/tracks`;
       }
+
+      // Get spotify API token
       await axios
         .post(
           "https://accounts.spotify.com/api/token",
@@ -97,7 +103,9 @@ export class AppComponent {
         )
         .then(async (res) => {
           const token = res.data.access_token;
-          let i = 0;
+          let i = 0; // Setting track ID
+
+          // Loop until the next url is null
           while (this.nextURL) {
             await axios
               .get(this.nextURL, {
@@ -118,22 +126,30 @@ export class AppComponent {
                     console.log(error);
                   }
                 });
+
+                // Retrieve only the names of the tracks
                 const jsonTrackName = JSONPath({
                   path: "$.items[*].track.name",
                   json: data.data,
                 });
+
+                // Retrieve only the artist names of the tracks
                 const jsonArtistName = JSONPath({
                   path: "$.items[*].track.artists[0].name",
                   json: data.data,
                 });
+
                 this.allTracks = this.allTracks.concat(jsonTrackName);
                 this.allArtists = this.allArtists.concat(jsonArtistName);
                 this.nextURL = data.data.next;
               });
           }
+
+          // Get a random track and artist
           this.chosenIndex = Math.floor(Math.random() * this.allTracks.length);
           this.chosenTrack = this.allTracks[this.chosenIndex];
           this.chosenArtist = this.allArtists[this.chosenIndex];
+
           await axios
             .get(
               `https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,

@@ -1,91 +1,90 @@
 <main
-  class="flex flex-wrap gap-8 justify-center items-center min-h-[100svh] w-full bg-neutral-950"
+  class="flex justify-center items-center min-h-[100svh] w-full bg-neutral-950 p-5"
 >
-  <form
-    class="relative flex flex-col gap-4 border-neutral-700 rounded-xl p-5 size-[85vh] shadow-2xl sm:border"
-    (submit)="getLyrics()"
-  >
-    <input
-      type="text"
-      name="playlist"
-      [(ngModel)]="spotifyPlaylist"
-      (ngModelChange)="blankInput = false"
-      placeholder="Your spotify playlist (URL)"
-      class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent w-full py-2 px-4 placeholder:text-neutral-600"
-      [ngClass]="{ '!border-red-900': blankInput }"
-    />
-    <label for="" class="text-red-600 -mt-4 ml-2 -mb-2" *ngIf="blankInput"
-      >Please, enter your playlist</label
+  <section class="flex flex-wrap justify-center gap-8 w-full">
+    <form
+      class="relative flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 w-full max-w-[40rem] shadow"
+      [ngClass]="{ lyricsEntrance: lyrics.length > 0 }"
+      (submit)="getLyrics()"
     >
-    <button
-      class="bg-green-700 px-5 rounded-full h-9"
-      [ngClass]="{ 'bg-green-900 cursor-not-allowed': isLoading }"
-      [disabled]="isLoading"
-    >
-      <span>Play</span>
-    </button>
-    <div class="flex flex-col items-center my-auto" *ngIf="isLoading">
-      <div class="container">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>
-      <p class="text-green-700">Just a sec...</p>
-    </div>
-    <div class="flex flex-col gap-4 overflow-y-auto lyrics-scroll">
-      @for (item of lyrics; track $index) {
-      <p class="text-xl text-green-600 font-bold pointer-events-none">
-        {{ item }}
-      </p>
-      }
-    </div>
-    <!-- <span
-      class="text-green-400 my-2 mx-auto cursor-pointer"
-      (click)="revealTrack()"
-      [ngClass]="{ 'blur-xl': !reveal }"
-      >{{ chosenTrack }} - {{ chosenArtist }}
-    </span> -->
-  </form>
-  <div class="flex flex-col gap-4" *ngIf="showGuessingTracks">
-    <div
-      class="flex flex-col border-neutral-700 rounded-xl size-[60vh] shadow-2xl overflow-hidden sm:border"
-    >
-      <div class="bg-neutral-950 px-5 py-4">
-        <input
-          type="text"
-          placeholder="Search track"
-          [(ngModel)]="searchQuery"
-          (ngModelChange)="searchTrack()"
-          class="w-full bg-transparent border-b border-green-700 px-4 pb-2 text-neutral-400 placeholder:text-neutral-600"
-        />
-      </div>
-      <div class="flex flex-col gap-4 pb-6 overflow-y-auto lyrics-scroll">
-        @for (item of searchResults; track $index) {
-        <div
-          class="border border-neutral-700 text-green-500 rounded-xl px-3 py-2 mx-5 flex gap-5 items-center hover:bg-neutral-900 cursor-pointer"
-          (click)="checkGuess(item.id)"
-          [ngClass]="{
-            '!bg-green-600 !border-green-950  animate__animated animate__flash !bg-opacity-10':
-              rightGuess && item.id === chosenIndex,
-            '!bg-red-600 !border-red-950 !text-red-600 animate__animated animate__shakeX !bg-opacity-10':
-              guessed && item.id === guessedIndex && item.id !== chosenIndex,
-            'opacity-20': rightGuess
-          }"
-        >
-          <img [src]="item.image" width="55" class="rounded-xl" />
-          <div>
-            <h1 class="font-bold">{{ item.name }}</h1>
-            <p class="font text-neutral-400">{{ item.artist }}</p>
-          </div>
+      <input
+        type="text"
+        name="playlist"
+        [(ngModel)]="spotifyPlaylist"
+        placeholder="Your spotify playlist (URL)"
+        class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent py-2 px-4 placeholder:text-neutral-600"
+        [ngClass]="{ 'border-red-900': blankInput }"
+      />
+      <label for="" class="text-red-600 -mt-4 ml-2 -mb-2" *ngIf="blankInput"
+        >Please, enter your playlist</label
+      >
+      <button
+        class="bg-green-700 px-5 rounded-full h-9"
+        [ngClass]="{ 'bg-green-900 cursor-not-allowed': isLoading }"
+        [disabled]="isLoading"
+      >
+        <span>Play</span>
+      </button>
+      <div class="flex flex-col items-center my-auto" *ngIf="isLoading">
+        <div class="container">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
         </div>
+        <p class="text-green-700">Just a sec...</p>
+      </div>
+      <div class="flex flex-col gap-4 overflow-y-auto lyrics-scroll">
+        @for (item of lyrics; track $index) {
+        <p class="text-xl text-green-600 font-bold pointer-events-none">
+          {{ item }}
+        </p>
         }
       </div>
-    </div>
-    <button
-      class="bg-green-700 px-5 rounded-full h-9 self-center"
-      (click)="showAnswer()"
+    </form>
+    <div
+      class="flex flex-col gap-4 w-full max-w-[40rem] h-[43rem]"
+      *ngIf="showGuessingTracks"
     >
-      Show answer
-    </button>
-  </div>
+      <div
+        class="flex flex-col w-full h-full border border-neutral-700 rounded-xl shadow-xl overflow-hidden"
+      >
+        <div class="bg-neutral-950 px-5 py-4">
+          <input
+            type="text"
+            placeholder="Search track"
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="searchTrack()"
+            class="w-full bg-transparent border-b border-green-700 px-4 pb-2 text-neutral-400 placeholder:text-neutral-600"
+          />
+        </div>
+        <div class="flex flex-col gap-4 pb-6 overflow-y-auto lyrics-scroll">
+          @for (item of searchResults; track $index) {
+          <div
+            class="border border-neutral-700 text-green-500 rounded-xl px-3 py-2 mx-5 flex gap-5 items-center hover:bg-neutral-900 cursor-pointer"
+            (click)="checkGuess(item.id)"
+            [ngClass]="{
+              '!bg-green-600 !border-green-950  animate__animated animate__flash !bg-opacity-10':
+                rightGuess && item.id === chosenIndex,
+              '!bg-red-600 !border-red-950 !text-red-600 animate__animated animate__shakeX !bg-opacity-10':
+                guessed && item.id === guessedIndex && item.id !== chosenIndex,
+              'opacity-20': rightGuess
+            }"
+          >
+            <img [src]="item.image" width="55" class="rounded-xl" />
+            <div>
+              <h1 class="font-bold">{{ item.name }}</h1>
+              <p class="font text-neutral-400">{{ item.artist }}</p>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      <button
+        class="bg-green-700 px-5 rounded-full h-9 self-center"
+        (click)="showAnswer()"
+      >
+        Show answer
+      </button>
+    </div>
+  </section>
 </main>
