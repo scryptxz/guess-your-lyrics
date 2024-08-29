@@ -7,6 +7,7 @@ import { JSONPath } from "jsonpath-plus";
 import qs from "qs";
 
 type TrackDataTypes = {
+  id: number;
   name: string;
   artist: string;
   image: string;
@@ -33,32 +34,44 @@ type SpotifyTrackData = {
   styleUrls: ["./app.component.css", "../assets/loader.css"],
 })
 export class AppComponent {
+  // Arrays
   lyrics!: string[];
-  trackId!: number;
-  spotifyPlaylist!: string;
-  chosenTrack!: string;
-  chosenArtist!: string;
-  isLoading: boolean = false;
-  reveal: boolean = false;
-  nextURL!: string | null;
+  searchResults!: TrackDataTypes[];
   allTracks: string[] = [];
   allArtists: string[] = [];
   trackData: TrackDataTypes[] = [];
-  showGuessingTracks: boolean = false;
+
+  // Booleans
   guessed!: boolean;
+  rightGuess!: boolean;
+  isLoading: boolean = false;
+  reveal: boolean = false;
+  showGuessingTracks: boolean = false;
+
+  // Numbers
+  trackId!: number;
+  chosenIndex!: number;
+  guessedIndex!: number;
+
+  // Strings
+  spotifyPlaylist!: string;
+  chosenTrack!: string;
+  chosenArtist!: string;
+  nextURL!: string | null;
   searchQuery: string = "";
-  searchResults!: TrackDataTypes[];
 
   async getLyrics() {
-    this.isLoading = true;
     this.lyrics = [];
-    this.reveal = false;
     this.allTracks = [];
     this.allArtists = [];
     this.trackData = [];
+    this.isLoading = true;
+    this.reveal = false;
     this.showGuessingTracks = false;
     this.guessed = false;
+    this.rightGuess = false;
     this.searchQuery = "";
+    this.guessedIndex = -1;
 
     try {
       const formattedPlaylistURL =
@@ -77,6 +90,7 @@ export class AppComponent {
         )
         .then(async (res) => {
           const token = res.data.access_token;
+          let i = 0;
           while (this.nextURL) {
             await axios
               .get(this.nextURL, {
@@ -88,6 +102,7 @@ export class AppComponent {
                 data.data.items.forEach((element: SpotifyTrackData) => {
                   try {
                     this.trackData.push({
+                      id: i++,
                       name: element.track.name,
                       artist: element.track.artists[0].name,
                       image: element.track.album.images[0].url,
@@ -109,12 +124,12 @@ export class AppComponent {
                 this.nextURL = data.data.next;
               });
           }
-          const randomIndex = Math.floor(Math.random() * this.allTracks.length);
-          this.chosenTrack = this.allTracks[randomIndex];
-          this.chosenArtist = this.allArtists[randomIndex];
+          this.chosenIndex = Math.floor(Math.random() * this.allTracks.length);
+          this.chosenTrack = this.allTracks[this.chosenIndex];
+          this.chosenArtist = this.allArtists[this.chosenIndex];
           await axios
             .get(
-              `/api/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
+              `https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
               {
                 params: {
                   apikey: "2eed47a883d004ec2ba352100a6b057e",
@@ -128,12 +143,15 @@ export class AppComponent {
               });
               this.trackId = result[0];
               await axios
-                .get("/api/ws/1.1/track.lyrics.get", {
-                  params: {
-                    track_id: this.trackId,
-                    apikey: "2eed47a883d004ec2ba352100a6b057e",
-                  },
-                })
+                .get(
+                  "https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.lyrics.get",
+                  {
+                    params: {
+                      track_id: this.trackId,
+                      apikey: "2eed47a883d004ec2ba352100a6b057e",
+                    },
+                  }
+                )
                 .then((res) => {
                   console.log(res);
                   this.isLoading = false;
@@ -147,9 +165,8 @@ export class AppComponent {
                     this.searchResults = this.trackData;
                     this.showGuessingTracks = true;
                   } catch (error) {
-                    // this.getLyrics();
+                    this.getLyrics();
                     console.log(error);
-                    this.isLoading = false;
                   }
                 });
             });
@@ -165,9 +182,15 @@ export class AppComponent {
     this.reveal = !this.reveal;
   }
 
-  checkGuess(track: TrackDataTypes) {
-    if (track.name === this.chosenTrack && track.artist === this.chosenArtist) {
+  checkGuess(guessedIndex: number) {
+    if (!this.rightGuess) {
       this.guessed = true;
+      if (guessedIndex === this.chosenIndex) {
+        this.rightGuess = true;
+      }
+      this.guessedIndex = guessedIndex;
+      console.log(guessedIndex);
+      console.log(this.chosenIndex);
     }
   }
 
