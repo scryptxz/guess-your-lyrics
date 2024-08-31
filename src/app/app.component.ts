@@ -11,6 +11,7 @@ type TrackDataTypes = {
   name: string;
   artist: string;
   image: string;
+  preview_url?: string;
 };
 
 type SpotifyTrackData = {
@@ -24,6 +25,7 @@ type SpotifyTrackData = {
         url: string;
       }[];
     };
+    preview_url?: string;
   };
 };
 @Component({
@@ -107,6 +109,9 @@ export class AppComponent {
               })
               .then((data) => {
                 data.data.items.forEach((element: SpotifyTrackData) => {
+                  if (!element.track.preview_url) {
+                    console.log(element.track.name);
+                  }
                   try {
                     if (element.track.album.images.length > 0) {
                       this.trackData.push({
@@ -114,30 +119,32 @@ export class AppComponent {
                         name: element.track.name,
                         artist: element.track.artists[0].name,
                         image: element.track.album.images[0].url,
+                        preview_url: element.track.preview_url,
                       });
                     }
                   } catch (error) {
                     console.log(error);
                   }
                 });
-
-                // Retrieve only the names of the tracks
-                const jsonTrackName = JSONPath({
-                  path: "$.items[*].track.name",
-                  json: data.data,
-                });
-
-                // Retrieve only the artist names of the tracks
-                const jsonArtistName = JSONPath({
-                  path: "$.items[*].track.artists[0].name",
-                  json: data.data,
-                });
-
-                this.allTracks = this.allTracks.concat(jsonTrackName);
-                this.allArtists = this.allArtists.concat(jsonArtistName);
                 this.nextURL = data.data.next;
               });
           }
+          // Retrieve only the names of the tracks
+          const jsonTrackName = JSONPath({
+            path: "$[*].name",
+            json: this.trackData,
+          });
+
+          // Retrieve only the artist names of the tracks
+          const jsonArtistName = JSONPath({
+            path: "$[*].artist",
+            json: this.trackData,
+          });
+
+          console.log(jsonTrackName);
+
+          this.allTracks = this.allTracks.concat(jsonTrackName);
+          this.allArtists = this.allArtists.concat(jsonArtistName);
 
           // Get a random track and artist
           this.chosenIndex = Math.floor(Math.random() * this.allTracks.length);
@@ -213,15 +220,20 @@ export class AppComponent {
   }
 
   searchTrack() {
-    this.searchResults = this.trackData.filter(
-      (e: TrackDataTypes) =>
-        e.name
-          .toLocaleLowerCase()
-          .includes(this.searchQuery.toLocaleLowerCase()) ||
-        e.artist
-          .toLocaleLowerCase()
-          .includes(this.searchQuery.toLocaleLowerCase())
-    );
+    this.searchResults = this.trackData.filter((e: TrackDataTypes) => {
+      if (e.artist) {
+        return (
+          e.name
+            .toLocaleLowerCase()
+            .includes(this.searchQuery.toLocaleLowerCase()) ||
+          e.artist
+            .toLocaleLowerCase()
+            .includes(this.searchQuery.toLocaleLowerCase())
+        );
+      } else {
+        return false;
+      }
+    });
   }
 
   showAnswer() {

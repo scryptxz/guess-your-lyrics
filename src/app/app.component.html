@@ -1,10 +1,19 @@
 <main
-  class="flex justify-center items-center min-h-[100svh] w-full bg-neutral-950 p-5"
+  class="flex flex-col justify-center items-center min-h-[100svh] w-full bg-neutral-950 p-5"
 >
+  <img
+    src="../assets/images/gyl-logo.png"
+    alt="GuessYourLyrics Logo"
+    width="300px"
+    class="mb-8 -mt-16"
+  />
   <section class="flex flex-wrap justify-center gap-8 w-full">
     <form
-      class="relative flex flex-col gap-4 border border-neutral-700 rounded-xl p-5 w-full max-w-[40rem] shadow"
-      [ngClass]="{ lyricsEntrance: lyrics.length > 0 }"
+      class="relative flex flex-col gap-4 w-full max-w-[40rem] shadow"
+      [ngClass]="{
+        lyricsEntrance: lyrics.length > 0,
+        'border border-neutral-700 rounded-xl p-5': showGuessingTracks
+      }"
       (submit)="getLyrics()"
     >
       <input
@@ -12,19 +21,19 @@
         name="playlist"
         [(ngModel)]="spotifyPlaylist"
         placeholder="Your spotify playlist (URL)"
-        class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent py-2 px-4 placeholder:text-neutral-600"
+        class="rounded-full border border-neutral-700 text-neutral-400 bg-transparent py-2 px-4 placeholder:text-neutral-600"
       />
       <!-- <label for="" class="text-red-600 -mt-4 ml-2 -mb-2" *ngIf="blankInput"
         >Please, enter your playlist</label
       > -->
       <button
-        class="bg-green-700 px-5 rounded-full h-9"
+        class="bg-green-700 px-5 rounded-full py-1 hover:brightness-105"
         [ngClass]="{ 'bg-green-900 cursor-not-allowed': isLoading }"
         [disabled]="isLoading"
       >
         <span>Play</span>
       </button>
-      <div class="flex flex-col items-center my-auto" *ngIf="isLoading">
+      <div class="text-center mt-1" *ngIf="isLoading">
         <div class="container">
           <div class="dot"></div>
           <div class="dot"></div>
@@ -32,9 +41,12 @@
         </div>
         <p class="text-green-700">Just a sec...</p>
       </div>
-      <div class="flex flex-col gap-4 overflow-y-auto lyrics-scroll">
+      <div
+        class="flex flex-col gap-4 overflow-y-auto lyrics-scroll"
+        *ngIf="showGuessingTracks"
+      >
         @for (item of lyrics; track $index) {
-        <p class="text-xl text-green-600 font-bold pointer-events-none">
+        <p class="text-green-600 font-bold pointer-events-none">
           {{ item }}
         </p>
         }
@@ -59,14 +71,14 @@
         <div class="flex flex-col gap-4 pb-6 overflow-y-auto lyrics-scroll">
           @for (item of searchResults; track $index) {
           <div
-            class="border border-neutral-700 text-green-500 rounded-xl px-3 py-2 mx-5 flex gap-5 items-center hover:bg-neutral-900 cursor-pointer"
+            class="flex gap-5 items-center !bg-opacity-10 border border-neutral-700 text-green-500 rounded-xl px-3 py-2 mx-5 hover:bg-neutral-900 cursor-pointer"
             (click)="checkGuess(item.id)"
             [ngClass]="{
-              '!bg-green-600 !border-green-950  animate__animated animate__flash !bg-opacity-10':
+              '!bg-green-600 !bg-opacity-10 !border-green-950 animate__animated animate__flash':
                 rightGuess && item.id === chosenIndex,
-              '!bg-red-600 !border-red-950 !text-red-600 animate__animated animate__shakeX !bg-opacity-10':
+              '!bg-red-600 !bg-opacity-10 !border-red-950 !text-red-600 animate__animated animate__shakeX':
                 guessed && item.id === guessedIndex && item.id !== chosenIndex,
-              'opacity-20': rightGuess
+              'opacity-20': rightGuess && item.id !== chosenIndex
             }"
           >
             <img [src]="item.image" width="55" class="rounded-xl" />
@@ -79,11 +91,12 @@
         </div>
       </div>
       <button
-        class="bg-green-700 px-5 rounded-full h-9 self-center"
+        class="bg-green-700 px-5 rounded-full h-9 self-center hover:brightness-105"
         (click)="showAnswer()"
       >
-        Show answer
+        Reveal track
       </button>
+      <!-- <audio controls [src]="item.preview_url"></audio> -->
     </div>
   </section>
 </main>
