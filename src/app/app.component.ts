@@ -35,11 +35,11 @@ type SpotifyTrackData = {
 })
 export class AppComponent {
   // Arrays
-  lyrics!: string[];
   searchResults!: TrackDataTypes[];
   allTracks: string[] = [];
   allArtists: string[] = [];
   trackData: TrackDataTypes[] = [];
+  lyrics: string[] = [];
 
   // Booleans
   guessed!: boolean;
@@ -47,7 +47,6 @@ export class AppComponent {
   isLoading: boolean = false;
   reveal: boolean = false;
   showGuessingTracks: boolean = false;
-  blankInput: boolean = false;
 
   // Numbers
   trackId!: number;
@@ -74,14 +73,7 @@ export class AppComponent {
     this.rightGuess = false;
     this.searchQuery = "";
     this.guessedIndex = -1;
-    this.blankInput = false;
-
     // Check if the playlist input is empty
-    if (this.spotifyPlaylist === "") {
-      this.isLoading = false;
-      this.blankInput = true;
-      return;
-    }
 
     try {
       // Format the playlist input value to only retrieve the playlist ID
@@ -116,12 +108,14 @@ export class AppComponent {
               .then((data) => {
                 data.data.items.forEach((element: SpotifyTrackData) => {
                   try {
-                    this.trackData.push({
-                      id: i++,
-                      name: element.track.name,
-                      artist: element.track.artists[0].name,
-                      image: element.track.album.images[0].url,
-                    });
+                    if (element.track.album.images.length > 0) {
+                      this.trackData.push({
+                        id: i++,
+                        name: element.track.name,
+                        artist: element.track.artists[0].name,
+                        image: element.track.album.images[0].url,
+                      });
+                    }
                   } catch (error) {
                     console.log(error);
                   }
@@ -179,15 +173,21 @@ export class AppComponent {
                   this.isLoading = false;
                   try {
                     const r = new RegExp(this.chosenTrack, "gi");
-                    const data = res.data.message.body.lyrics.lyrics_body
-                      .replace(r, "████████")
-                      .split("\n")
-                      .filter((e: string) => e != "");
-                    this.lyrics = data.slice(0, data.length - 4);
-                    this.searchResults = this.trackData;
-                    this.showGuessingTracks = true;
+                    if (Object.hasOwn(res.data.message.body, "lyrics")) {
+                      const data = res.data.message.body.lyrics.lyrics_body
+                        .replace(r, "████████")
+                        .split("\n")
+                        .filter((e: string) => e != "");
+                      this.lyrics = data.slice(0, data.length - 4);
+                      this.searchResults = this.trackData;
+                      this.showGuessingTracks = true;
+                    }
+                    if (this.lyrics.length === 0) {
+                      this.getLyrics();
+                    }
                   } catch (error) {
-                    this.getLyrics();
+                    alert("Some error occurred.");
+                    console.log(error);
                   }
                 });
             });

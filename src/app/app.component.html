@@ -13,11 +13,10 @@
         [(ngModel)]="spotifyPlaylist"
         placeholder="Your spotify playlist (URL)"
         class="rounded-xl border border-neutral-700 text-neutral-400 bg-transparent py-2 px-4 placeholder:text-neutral-600"
-        [ngClass]="{ 'border-red-900': blankInput }"
       />
-      <label for="" class="text-red-600 -mt-4 ml-2 -mb-2" *ngIf="blankInput"
+      <!-- <label for="" class="text-red-600 -mt-4 ml-2 -mb-2" *ngIf="blankInput"
         >Please, enter your playlist</label
-      >
+      > -->
       <button
         class="bg-green-700 px-5 rounded-full h-9"
         [ngClass]="{ 'bg-green-900 cursor-not-allowed': isLoading }"

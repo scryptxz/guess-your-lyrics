@@ -17,7 +17,7 @@ input:-webkit-autofill:focus {
 }
 
 .lyricsEntrance {
-  animation: lyricsEntrance 0.5s ease forwards;
+  animation: lyricsEntrance 1s ease-in-out forwards;
 }
 
 @media (max-width: 500px) {
