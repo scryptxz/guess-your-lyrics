@@ -5,6 +5,7 @@ import axios from "axios";
 import { FormsModule } from "@angular/forms";
 import { JSONPath } from "jsonpath-plus";
 import qs from "qs";
+import { WarningComponent } from "./warning/warning.component";
 
 type TrackDataTypes = {
   id: number;
@@ -31,7 +32,7 @@ type SpotifyTrackData = {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, RouterOutlet, FormsModule],
+  imports: [CommonModule, RouterOutlet, FormsModule, WarningComponent],
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css", "../assets/loader.css"],
 })
@@ -49,6 +50,7 @@ export class AppComponent {
   isLoading: boolean = false;
   reveal: boolean = false;
   showGuessingTracks: boolean = false;
+  showWarning: boolean = true;
 
   // Numbers
   trackId!: number;
@@ -61,6 +63,12 @@ export class AppComponent {
   nextURL!: string | null;
   searchQuery: string = "";
   spotifyPlaylist: string = "";
+
+  ngOnInit(): void {
+    if (localStorage.getItem("warning") === "forget") {
+      this.showWarning = false;
+    }
+  }
 
   async getLyrics() {
     // Reset states when the user submit the form
@@ -75,8 +83,13 @@ export class AppComponent {
     this.rightGuess = false;
     this.searchQuery = "";
     this.guessedIndex = -1;
-    // Check if the playlist input is empty
 
+    // Check if the playlist input is empty
+    if (this.spotifyPlaylist.length === 0) {
+      alert("Please, enter your playlist");
+      this.isLoading = false;
+      return;
+    }
     try {
       // Format the playlist input value to only retrieve the playlist ID
       const formattedPlaylistURL =
@@ -206,7 +219,8 @@ export class AppComponent {
   }
 
   revealTrack() {
-    this.reveal = !this.reveal;
+    const confirmReveal = confirm("Are you sure you want to reveal the track?");
+    if (confirmReveal) this.reveal = !this.reveal;
   }
 
   checkGuess(guessedIndex: number) {
@@ -241,5 +255,9 @@ export class AppComponent {
       (e: TrackDataTypes) => e.id === this.chosenIndex
     );
     this.rightGuess = true;
+  }
+
+  closeWarning() {
+    this.showWarning = false;
   }
 }
