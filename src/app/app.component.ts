@@ -220,7 +220,12 @@ export class AppComponent {
 
   revealTrack() {
     const confirmReveal = confirm("Are you sure you want to reveal the track?");
-    if (confirmReveal) this.reveal = !this.reveal;
+    if (confirmReveal) {
+      this.searchResults = this.trackData.filter(
+        (e: TrackDataTypes) => e.id === this.chosenIndex
+      );
+      this.rightGuess = true;
+    }
   }
 
   checkGuess(guessedIndex: number) {
@@ -248,13 +253,6 @@ export class AppComponent {
         return false;
       }
     });
-  }
-
-  showAnswer() {
-    this.searchResults = this.trackData.filter(
-      (e: TrackDataTypes) => e.id === this.chosenIndex
-    );
-    this.rightGuess = true;
   }
 
   closeWarning() {
