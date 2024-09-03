@@ -6,16 +6,16 @@
     src="../assets/images/gyl-logo.png"
     alt="GuessYourLyrics Logo"
     width="300px"
-    class="mb-8 -mt-16"
+    class="mb-8"
   />
   <section class="flex flex-wrap justify-center gap-8 w-full">
     <form
-      class="relative flex flex-col gap-4 w-full max-w-[40rem] shadow"
+      class="relative flex flex-col gap-4 w-full max-w-[35rem] shadow"
       [ngClass]="{
         lyricsEntrance: lyrics.length > 0,
         'border border-neutral-700 rounded-xl p-5': showGuessingTracks
       }"
-      (submit)="getLyrics()"
+      (submit)="getSpotifyData()"
     >
       <input
         type="text"
@@ -54,7 +54,7 @@
       </div>
     </form>
     <div
-      class="flex flex-col gap-4 w-full max-w-[40rem] h-[43rem]"
+      class="flex flex-col gap-4 w-full max-w-[35rem] h-[43rem] max-sm:h-[33rem]"
       *ngIf="showGuessingTracks"
     >
       <div
@@ -87,6 +87,7 @@
               <h1 class="font-bold">{{ item.name }}</h1>
               <p class="font text-neutral-400">{{ item.artist }}</p>
             </div>
+            <!-- <audio controls [src]="item.preview_url"></audio> -->
           </div>
           }
         </div>
@@ -97,7 +98,6 @@
       >
         Reveal track
       </button>
-      <!-- <audio controls [src]="item.preview_url"></audio> -->
     </div>
   </section>
 </main>

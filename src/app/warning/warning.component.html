@@ -2,7 +2,7 @@
   class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-20"
 >
   <div
-    class="bg-neutral-900 border border-green-800 rounded-lg w-[35rem] p-8 text-neutral-300 animate__animated animate__fadeInDown animate_fast"
+    class="bg-neutral-900 border border-green-800 rounded-lg w-[35rem] overflya p-8 text-neutral-300 animate__animated animate__fadeInDown animate_fast"
   >
     <img
       src="../../assets/images/gyl-logo.png"
@@ -10,17 +10,34 @@
       width="180px"
       class="mx-auto mb-4"
     />
-    <p>To get the application working correctly, follow this step:</p>
-    <p class="font-semibold my-4">
-      Open up the website
-      <a
-        href="https://cors-anywhere.herokuapp.com"
-        target="_blank"
-        class="text-blue-300 font-normal hover:underline"
-        >https://cors-anywhere.herokuapp.com</a
-      >
-      and press the "Request temporary access to the demo server" button and wait until the message "You currently have temporary access to the demo server." shows up.
+    <p class="text-green-500">
+      To ensure the application functions correctly, follow this guide:
     </p>
+    <ol class="font-bold list-decimal flex flex-col gap-4 mt-2 mb-5 ml-4">
+      <li>
+        Open up the website
+        <a
+          href="https://cors-anywhere.herokuapp.com"
+          target="_blank"
+          class="text-blue-300 font-normal hover:underline"
+          >https://cors-anywhere.herokuapp.com</a
+        >.
+      </li>
+      <li>
+        Press the
+        <span class="font-normal italic"
+          >Request temporary access to the demo server</span
+        >
+        button.
+      </li>
+      <li>
+        Wait until the message
+        <span class="font-normal italic">
+          You currently have temporary access to the demo server.
+        </span>
+        shows up.
+      </li>
+    </ol>
     <img
       src="../../assets/images/cors-site.png"
       alt="Cors-anywhere website"
