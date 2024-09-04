@@ -77,7 +77,7 @@
             [ngClass]="{
               '!bg-green-600 !bg-opacity-10 !border-green-950 animate__animated animate__flash':
                 rightGuess && item.id === chosenIndex,
-              'bg-red-600 bg-opacity-10 !border-red-950 !text-red-600 animate__animated animate__shakeX':
+              '!bg-red-600 !bg-opacity-10 !border-red-950 !text-red-600 animate__animated animate__shakeX':
                 guessed && item.id === guessedIndex && item.id !== chosenIndex,
               'opacity-20': rightGuess && item.id !== chosenIndex
             }"

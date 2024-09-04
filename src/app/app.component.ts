@@ -148,77 +148,89 @@ export class AppComponent {
   }
 
   async getLyrics() {
-    // Retrieve only the names of the tracks
-    const jsonTrackName = JSONPath({
-      path: "$[*].name",
-      json: this.trackData,
-    });
-
-    // Retrieve only the artist names of the tracks
-    const jsonArtistName = JSONPath({
-      path: "$[*].artist",
-      json: this.trackData,
-    });
-    this.allTracks = this.allTracks.concat(jsonTrackName);
-    this.allArtists = this.allArtists.concat(jsonArtistName);
-
-    // Get a random track and artist
-    this.chosenIndex = Math.floor(Math.random() * this.allTracks.length);
-    this.chosenTrack = this.allTracks[this.chosenIndex];
-    this.chosenArtist = this.allArtists[this.chosenIndex];
-
-    await axios
-      .get(
-        `https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
-        {
-          params: {
-            apikey: "2eed47a883d004ec2ba352100a6b057e",
-          },
-        }
-      )
-      .then(async (res) => {
-        const result = JSONPath({
-          path: `$.message.body.track_list[?(@.track.artist_name == "${this.chosenArtist}" && @.track.track_name.match(/${this.chosenTrack}/gi))].track.track_id`,
-          json: res.data,
-        });
-        this.trackId = result[0];
-        await axios
-          .get(
-            "https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.lyrics.get",
-            {
-              params: {
-                track_id: this.trackId,
-                apikey: "2eed47a883d004ec2ba352100a6b057e",
-              },
-            }
-          )
-          .then((res) => {
-            this.isLoading = false;
-            try {
-              const r = new RegExp(this.chosenTrack, "gi");
-              if (Object.hasOwn(res.data.message.body, "lyrics")) {
-                const data = res.data.message.body.lyrics.lyrics_body
-                  .replace(r, "████████")
-                  .split("\n")
-                  .filter((e: string) => e != "");
-                this.lyrics = data.slice(0, data.length - 4);
-                this.searchResults = this.trackData;
-                this.showGuessingTracks = true;
-              }
-              if (this.lyrics.length === 0) {
-                this.getLyrics();
-              }
-            } catch (error) {
-              alert("Some error occurred.");
-              console.log(error);
-            }
-          });
+    let repeat: number = 0;
+    do {
+      repeat++;
+      this.lyrics = [];
+      this.allTracks = [];
+      this.allArtists = [];
+      this.showGuessingTracks = false;
+      // Retrieve only the names of the tracks
+      const jsonTrackName = JSONPath({
+        path: "$[*].name",
+        json: this.trackData,
       });
+
+      // Retrieve only the artist names of the tracks
+      const jsonArtistName = JSONPath({
+        path: "$[*].artist",
+        json: this.trackData,
+      });
+      this.allTracks = this.allTracks.concat(jsonTrackName);
+      this.allArtists = this.allArtists.concat(jsonArtistName);
+
+      // Get a random track and artist
+      this.chosenIndex = Math.floor(Math.random() * this.allTracks.length);
+      this.chosenTrack = this.allTracks[this.chosenIndex];
+      this.chosenArtist = this.allArtists[this.chosenIndex];
+
+      await axios
+        .get(
+          `https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
+          {
+            params: {
+              apikey: "2eed47a883d004ec2ba352100a6b057e",
+            },
+          }
+        )
+        .then(async (res) => {
+          const result = JSONPath({
+            path: `$.message.body.track_list[?(@.track.artist_name == "${this.chosenArtist}" && @.track.track_name.match(/${this.chosenTrack}/gi))].track.track_id`,
+            json: res.data,
+          });
+          this.trackId = result[0];
+          console.log("Fetching lyrics");
+          console.log("-----------");
+          await axios
+            .get(
+              "https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.lyrics.get",
+              {
+                params: {
+                  track_id: this.trackId,
+                  apikey: "2eed47a883d004ec2ba352100a6b057e",
+                },
+              }
+            )
+            .then((res) => {
+              try {
+                const r = new RegExp(this.chosenTrack, "gi");
+                if (Object.hasOwn(res.data.message.body, "lyrics")) {
+                  const data = res.data.message.body.lyrics.lyrics_body
+                    .replace(r, "████████")
+                    .split("\n")
+                    .filter((e: string) => e != "");
+                  this.lyrics = data.slice(0, data.length - 4);
+                  this.searchResults = this.trackData;
+                  this.showGuessingTracks = true;
+                }
+              } catch (error) {
+                alert("Some error occurred.");
+                console.log(error);
+              }
+            });
+        });
+    } while (this.lyrics.length === 0 && repeat < 6);
+    if (repeat > 5) {
+      alert("Try another playlist");
+    }
+    this.isLoading = false;
   }
 
   revealTrack() {
     const confirmReveal = confirm("Are you sure you want to reveal the track?");
     if (confirmReveal) {
+      console.log(this.searchResults);
+      console.log(this.chosenIndex);
       this.searchResults = this.trackData.filter(
         (e: TrackDataTypes) => e.id === this.chosenIndex
       );
