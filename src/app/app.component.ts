@@ -1,11 +1,11 @@
 import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { RouterOutlet } from "@angular/router";
 import axios from "axios";
 import { FormsModule } from "@angular/forms";
 import { JSONPath } from "jsonpath-plus";
 import qs from "qs";
 import { WarningComponent } from "./warning/warning.component";
+import { FooterComponent } from "./footer/footer.component";
 
 type TrackDataTypes = {
   id: number;
@@ -32,7 +32,7 @@ type SpotifyTrackData = {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, RouterOutlet, FormsModule, WarningComponent],
+  imports: [CommonModule, FormsModule, WarningComponent, FooterComponent],
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css", "../assets/loader.css"],
 })
@@ -176,21 +176,21 @@ export class AppComponent {
 
       await axios
         .get(
-          `https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.search?q=${this.chosenTrack} ${this.chosenArtist}`,
+          `http://localhost:3000/get-track-id`,
           {
             params: {
-              apikey: "2eed47a883d004ec2ba352100a6b057e",
+              track_name: this.chosenTrack,
+              artist_name: this.chosenArtist,
             },
           }
         )
         .then(async (res) => {
+          console.log(res);
           const result = JSONPath({
             path: `$.message.body.track_list[?(@.track.artist_name == "${this.chosenArtist}" && @.track.track_name.match(/${this.chosenTrack}/gi))].track.track_id`,
             json: res.data,
           });
           this.trackId = result[0];
-          console.log("Fetching lyrics");
-          console.log("-----------");
           await axios
             .get(
               "https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.lyrics.get",

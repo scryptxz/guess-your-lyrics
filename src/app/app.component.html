@@ -32,7 +32,7 @@
         [ngClass]="{ 'bg-green-900 cursor-not-allowed': isLoading }"
         [disabled]="isLoading"
       >
-        <span>Play</span>
+        <span>Submit</span>
       </button>
       <div class="text-center mt-2" *ngIf="isLoading">
         <div class="container">
@@ -47,7 +47,7 @@
         *ngIf="showGuessingTracks"
       >
         @for (item of lyrics; track $index) {
-        <p class="text-green-600 font-bold pointer-events-none">
+        <p class="text-green-600 font-bold pointer-events-none select-none">
           {{ item }}
         </p>
         }
@@ -87,7 +87,6 @@
               <h1 class="font-bold">{{ item.name }}</h1>
               <p class="font text-neutral-400">{{ item.artist }}</p>
             </div>
-            <!-- <audio controls [src]="item.preview_url"></audio> -->
           </div>
           }
         </div>
@@ -101,3 +100,4 @@
     </div>
   </section>
 </main>
+<app-footer></app-footer>
