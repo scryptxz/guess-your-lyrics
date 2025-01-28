@@ -168,7 +168,7 @@ export class AppComponent {
 
       await axios
         .get(
-          `http://localhost:3000/get-track-id`,
+          `https://gyl-server.onrender.com/get-track-id`,
           {
             params: {
               track_name: this.chosenTrack,
@@ -177,7 +177,6 @@ export class AppComponent {
           }
         )
         .then(async (res) => {
-          console.log(res);
           const result = JSONPath({
             path: `$.message.body.track_list[?(@.track.artist_name == "${this.chosenArtist}" && @.track.track_name.match(/${this.chosenTrack}/gi))].track.track_id`,
             json: res.data,
@@ -185,7 +184,7 @@ export class AppComponent {
           this.trackId = result[0];
           await axios
             .get(
-              "http://localhost:3000/get-lyrics",
+              "https://gyl-server.onrender.com/get-lyrics",
               {
                 params: {
                   track_id: this.trackId,
@@ -220,8 +219,6 @@ export class AppComponent {
   revealTrack() {
     const confirmReveal = confirm("Are you sure you want to reveal the track?");
     if (confirmReveal) {
-      console.log(this.searchResults);
-      console.log(this.chosenIndex);
       this.searchResults = this.trackData.filter(
         (e: TrackDataTypes) => e.id === this.chosenIndex
       );
