@@ -4,7 +4,6 @@ import axios from "axios";
 import { FormsModule } from "@angular/forms";
 import { JSONPath } from "jsonpath-plus";
 import qs from "qs";
-import { WarningComponent } from "./warning/warning.component";
 import { FooterComponent } from "./footer/footer.component";
 
 type TrackDataTypes = {
@@ -32,7 +31,7 @@ type SpotifyTrackData = {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, FormsModule, WarningComponent, FooterComponent],
+  imports: [CommonModule, FormsModule, FooterComponent],
   templateUrl: "./app.component.html",
   styleUrls: ["./app.component.css", "../assets/loader.css"],
 })
@@ -50,7 +49,6 @@ export class AppComponent {
   isLoading: boolean = false;
   reveal: boolean = false;
   showGuessingTracks: boolean = false;
-  showWarning: boolean = true;
 
   // Numbers
   trackId!: number;
@@ -63,12 +61,6 @@ export class AppComponent {
   nextURL!: string | null;
   searchQuery: string = "";
   spotifyPlaylist: string = "";
-
-  ngOnInit(): void {
-    if (localStorage.getItem("warning") === "forget") {
-      this.showWarning = false;
-    }
-  }
 
   async getSpotifyData() {
     // Reset states when the user submit the form
@@ -193,11 +185,10 @@ export class AppComponent {
           this.trackId = result[0];
           await axios
             .get(
-              "https://cors-anywhere.herokuapp.com/https://api.musixmatch.com/ws/1.1/track.lyrics.get",
+              "http://localhost:3000/get-lyrics",
               {
                 params: {
                   track_id: this.trackId,
-                  apikey: "2eed47a883d004ec2ba352100a6b057e",
                 },
               }
             )
@@ -263,9 +254,5 @@ export class AppComponent {
         return false;
       }
     });
-  }
-
-  closeWarning() {
-    this.showWarning = false;
   }
 }
